@@ -1,5 +1,5 @@
 [package]
-name = "ImgSync"
+name = "img_sync"
 version = "0.1.0"
 authors = ["Isato Matsushita <22887835+bean1310@users.noreply.github.com>"]
 edition = "2018"
@@ -7,3 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+notify = "4.0.16"
+daemonize-me = "0.3"
+clap = {version = "~2.33.3", features = ["yaml"]}
+thiserror = "1.0.24"
