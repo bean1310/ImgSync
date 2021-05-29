@@ -9,6 +9,9 @@ use daemonize_me::{Daemon, Group, User};
 use std::convert::TryFrom;
 use std::fs::File;
 
+mod storage;
+use storage::slack::Slack;
+
 #[macro_use]
 extern crate ini;
 
@@ -48,8 +51,11 @@ fn init_daemon() -> Result<(), daemonize_me::DaemonError>
 
 fn main()
 {
-    let config = ini!("/etc/img_sync");
+    // let config = ini!("/etc/img_sync");
+    let config      = ini!("./etc/img_sync");
+    
     let observe_dir = config["basic"]["dir"].clone().unwrap();
+    let token       = config["slack"]["token"].clone().unwrap();
     // This program run as daemon process
     let daemon = init_daemon();
 
