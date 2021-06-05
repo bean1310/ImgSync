@@ -86,7 +86,6 @@ fn main()
 {
     
     let config = Config::new();
-    let storage = &*(config.storage);
     // Option handling
     let _arg_len = env::args().len();
     if _arg_len > 0 {
@@ -107,6 +106,7 @@ fn main()
             let daemon = init_daemon();
 
             if let Err(e) = daemon {
+                eprintln!("Failed to daemonize.");
                 eprintln!("Error happned, {}", e);
                 panic!();
             }
@@ -115,13 +115,14 @@ fn main()
 
     // Start main process
     if let Err(e) = watch(config.observe_dir, config.storage) {
-        println!("error: {:?}", e);
+        eprintln!("Failed to observe directory");
+        eprintln!("error: {:?}", e);
         panic!()
     }
 
 }
 
-fn watch(observe_dir: PathBuf, storage: Box<dyn Storage>) -> notify::Result<()>
+fn watch(observe_dir: PathBuf, storage: Box<dyn Storage>) -> Result<(), Box<dyn std::error::Error>>
 {
 
     let (tx, rx) = channel();
@@ -132,21 +133,21 @@ fn watch(observe_dir: PathBuf, storage: Box<dyn Storage>) -> notify::Result<()>
     loop
     {
         match rx.recv() {
-            Ok(event) => if let Create(path) = event {
-                println!("file created!");
-                fileCreated(path, &storage);
-                ()
-            } else {
-                // Do not handling if other events happend.
-                ()
+            Ok(event) =>
+            {
+                if let Create(path) = event
+                {
+                    println!("[log] detect file create event");
+                    let upload_result = storage.upload(&path);
+                    match upload_result
+                    {
+                        Ok(()) => println!("[log] Successed to upload file: {}", path.display()),
+                        Err(error)  =>  eprintln!("[Error] Error happend: {:?}", error)
+                    }
+                }
             },
-            Err(error)  => println!("{:?}", error)
+            Err(error)  => eprintln!("[Error] Error happend: {:?}", error)
         }
     }
 
-}
-
-fn fileCreated(path: std::path::PathBuf, storage: &Box<dyn Storage>) -> Result<(), Box<dyn std::error::Error>>
-{
-    storage.upload(path.as_path())
 }
