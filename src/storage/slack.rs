@@ -2,7 +2,6 @@ use reqwest::blocking::{Client, multipart};
 use reqwest::StatusCode;
 use crate::storage::{Storage, StorageError};
 use std::path::Path;
-use std::collections::HashMap;
 
 pub struct Slack
 {

@@ -1,7 +1,6 @@
 extern crate notify;
 
 use std::path::PathBuf;
-use std::path::Path;
 use notify::DebouncedEvent::Create;
 use std::env;
 
@@ -10,8 +9,8 @@ use std::sync::mpsc::channel;
 use std::time::Duration;
 
 extern crate daemonize_me;
-use daemonize_me::{Daemon, Group, User};
-use std::convert::TryFrom;
+use daemonize_me::{Daemon};
+
 use std::fs::File;
 
 mod storage;
