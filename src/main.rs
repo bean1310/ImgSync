@@ -1,5 +1,8 @@
 extern crate notify;
 
+use std::path::PathBuf;
+use std::path::Path;
+use notify::DebouncedEvent::Create;
 use std::env;
 
 use notify::{RecommendedWatcher, Watcher, RecursiveMode};
@@ -12,10 +15,36 @@ use std::convert::TryFrom;
 use std::fs::File;
 
 mod storage;
+use storage::Storage;
 use storage::slack::Slack;
 
 #[macro_use]
 extern crate ini;
+
+struct Config
+{
+    storage: Box<dyn Storage>,
+    observe_dir: PathBuf
+}
+
+impl Config
+{
+    fn new() -> Self
+    {
+        // let config = ini!("/etc/img_sync");
+        let _config = ini!("./etc/img_sync");
+        let observe_dir = _config["basic"]["dir"].clone().unwrap();
+
+        let token = _config["slack"]["token"].clone().unwrap();
+        let channel_id = _config["slack"]["channel_id"].clone().unwrap();
+        
+        Self
+        {
+            observe_dir: PathBuf::from(&observe_dir),
+            storage: Box::new(Slack::new(&token, &channel_id)),
+        }
+    }
+}
 
 #[cfg(debug_assertions)]
 fn init_daemon() -> Result<(), daemonize_me::DaemonError>
@@ -51,14 +80,13 @@ fn init_daemon() -> Result<(), daemonize_me::DaemonError>
 
 }
 
+
+
 fn main()
 {
-    // let config = ini!("/etc/img_sync");
-    let config      = ini!("./etc/img_sync");
     
-    let observe_dir = config["basic"]["dir"].clone().unwrap();
-    let token       = config["slack"]["token"].clone().unwrap();
-
+    let config = Config::new();
+    let storage = &*(config.storage);
     // Option handling
     let _arg_len = env::args().len();
     if _arg_len > 0 {
@@ -86,14 +114,14 @@ fn main()
     }
 
     // Start main process
-    if let Err(e) = watch(&observe_dir) {
+    if let Err(e) = watch(config.observe_dir, config.storage) {
         println!("error: {:?}", e);
         panic!()
     }
 
 }
 
-fn watch(observe_dir: &str) -> notify::Result<()>
+fn watch(observe_dir: PathBuf, storage: Box<dyn Storage>) -> notify::Result<()>
 {
 
     let (tx, rx) = channel();
@@ -104,11 +132,21 @@ fn watch(observe_dir: &str) -> notify::Result<()>
     loop
     {
         match rx.recv() {
-            Ok(event) => println!("{:?}", event),
+            Ok(event) => if let Create(path) = event {
+                println!("file created!");
+                fileCreated(path, &storage);
+                ()
+            } else {
+                // Do not handling if other events happend.
+                ()
+            },
             Err(error)  => println!("{:?}", error)
         }
     }
 
 }
 
-// fn upload
+fn fileCreated(path: std::path::PathBuf, storage: &Box<dyn Storage>) -> Result<(), Box<dyn std::error::Error>>
+{
+    storage.upload(path.as_path())
+}

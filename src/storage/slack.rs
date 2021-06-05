@@ -31,7 +31,7 @@ impl Storage for Slack
 }
 
 impl Slack {
-    fn new(token: &str, channel_id: &str) -> Self
+    pub fn new(token: &str, channel_id: &str) -> Self
     {
         Self {
             token: token.to_string(),
