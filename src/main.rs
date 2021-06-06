@@ -15,6 +15,7 @@ use std::fs::File;
 
 mod storage;
 use storage::Storage;
+use storage::StorageError;
 use storage::slack::Slack;
 
 #[macro_use]
@@ -141,7 +142,24 @@ fn watch(observe_dir: PathBuf, storage: Box<dyn Storage>) -> Result<(), Box<dyn 
                     match upload_result
                     {
                         Ok(()) => println!("[log] Successed to upload file: {}", path.display()),
-                        Err(error)  =>  eprintln!("[Error] Error happend: {:?}", error)
+                        Err(error)  =>
+                            {
+                                match error.downcast_ref::<StorageError>() {
+                                    Some(e) => {
+                                        match e {
+                                            StorageError::ApiError(msg)  =>  {
+                                                eprintln!("[Warning] Failed to upload file: {}", path.display());
+                                                eprintln!("\t Storage API Error messsage is : {}", msg);
+                                            },
+                                            StorageError::HttpError(http_status_code)  =>  {
+                                                eprintln!("[Warning] Failed to upload file: {}", path.display());
+                                                eprintln!("\t Http status code is : {}", http_status_code);
+                                            }
+                                        }
+                                    },
+                                    _   =>  ()
+                                }
+                            }
                     }
                 }
             },

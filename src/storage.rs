@@ -9,6 +9,8 @@ pub trait Storage {
 
 #[derive(Error, Debug)]
 pub enum StorageError {
-    #[error("Failed to access")] 
-    AccessError,
+    #[error("Failed to upload due to HTTP status error.")] 
+    HttpError(u16),
+    #[error("Failed to upload due to API error.")]
+    ApiError(String),
 }

@@ -2,6 +2,7 @@ use reqwest::blocking::{Client, multipart};
 use reqwest::StatusCode;
 use crate::storage::{Storage, StorageError};
 use std::path::Path;
+use serde_json::Value;
 
 pub struct Slack
 {
@@ -21,11 +22,25 @@ impl Storage for Slack
                         .header("Authorization", "Bearer ".to_string() + &(self.token).clone())
                         .multipart(_form)
                         .send()?;
-        
-        match _res.status() {
-            StatusCode::OK => Ok(()),
-            _              => Err(Box::new(StorageError::AccessError)),
+
+
+        if let StatusCode::OK = _res.status()
+        {
+            let response_body: Value = _res.json()?;
+            // TODO: Error handling
+            let _is_failed = !response_body["ok"].as_bool().unwrap();
+            if _is_failed
+            {
+                let slack_api_error_message = response_body["error"].as_str().unwrap();
+                Err(StorageError::ApiError(slack_api_error_message.to_string()))?
+            }
+        } 
+        else
+        {
+            Err(StorageError::HttpError(_res.status().as_u16()))?
         }
+
+        Ok(())
     }
 }
 
