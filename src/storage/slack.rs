@@ -54,17 +54,17 @@ impl Slack {
     }
 }
 
-mod test
-{
-    use super::*;
-    #[test]
-    fn image_upload_test() {
+// mod test
+// {
+//     use super::*;
+//     #[test]
+//     fn image_upload_test() {
         
-        let config  = ini!("./etc/img_sync");
-        let token   = config["slack"]["token"].clone().unwrap();
-        let channel_id = config["slack"]["channel_id"].clone().unwrap();
-        let slack = Slack::new(&token, &channel_id);
-        let test_image_path = Path::new("./Debug/test.png");
-        assert!(slack.upload(test_image_path).is_ok());
-    }
-}
+//         let config  = ini!("./etc/img_sync");
+//         let token   = config["slack"]["token"].clone().unwrap();
+//         let channel_id = config["slack"]["channel_id"].clone().unwrap();
+//         let slack = Slack::new(&token, &channel_id);
+//         let test_image_path = Path::new("./Debug/test.png");
+//         assert!(slack.upload(test_image_path).is_ok());
+//     }
+// }
