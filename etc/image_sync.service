@@ -1,0 +1,11 @@
+[Unit]
+Description=Image file syncer
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/img_sync
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target
