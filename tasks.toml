@@ -1,0 +1,39 @@
+[tasks.clean]
+command = "cargo"
+args = ["clean"]
+
+[tasks.build]
+command = "cargo"
+args = ["build", "--release"]
+dependencies = ["clean"]
+
+[tasks.test]
+command = "cargo"
+args = ["test"]
+dependencies = ["clean"]
+
+[tasks.install]
+command = "cp"
+args = ["target/release/img_sync", "/usr/local/bin/"]
+dependencies = [
+    "build",
+    "test"
+]
+
+[tasks.uninstall]
+command = "rm"
+args = ["/usr/local/bin/img_sync"]
+
+[task.systemd-install]
+command = "cp"
+args = ["etc/img_sync.service", "/etc/systemd/system/multi-user.target.wants/"]
+dependencies = [
+    "install"
+]
+
+[task.systemd-uninstall]
+command = "rm"
+args = ["/etc/systemd/system/multi-user.target.wants/img_sync.service"]
+dependencies = [
+    "uninstall"
+]
