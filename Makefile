@@ -4,9 +4,9 @@ PROGRAM	=	img_sync
 SERVICE_FILE_DEST	=	/etc/systemd/system/img_sync.service
 SERVICE_FILE_SRC	=	./etc/img_sync.service
 
-all: $(SRC)
+all: $(PROGRAM)
 
-$(SRC): clean test
+$(PROGRAM): clean test
 	$(CC) build $(PROD_FLAGS)
 
 .PHONY: clean
