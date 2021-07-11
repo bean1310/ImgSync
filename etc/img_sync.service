@@ -4,7 +4,8 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/usr/local/bin/img_sync
+ExecStart=/usr/local/bin/img_sync --daemon
+PIDFile=/var/run/img_sync.pid
 KillSignal=SIGTERM
 
 [Install]
