@@ -31,8 +31,7 @@ impl Config
 {
     fn new() -> Self
     {
-        // let config = ini!("/etc/img_sync");
-        let _config = ini!("./etc/img_sync");
+        let _config = ini!("/etc/img_sync");
         let observe_dir = _config["basic"]["dir"].clone().unwrap();
 
         let token = _config["slack"]["token"].clone().unwrap();
@@ -71,10 +70,10 @@ fn init_daemon() -> Result<(), daemonize_me::DaemonError>
     let pidFile = "/var/run/img_sync.pid";
 
     let daemon = Daemon::new()
-                            .pid_file(pidFile, Some(false))
-                            .umask(0o022)
-                            .work_dir("/tmp")
-                            .start();
+                    .pid_file(pidFile, Some(false))
+                    .umask(0o022)
+                    .work_dir("/tmp")
+                    .start();
 
     daemon
 
