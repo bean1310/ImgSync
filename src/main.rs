@@ -62,6 +62,21 @@ fn init_daemon() -> Result<(), daemonize_me::DaemonError> {
     daemon
 }
 
+#[cfg(debug_assertions)]
+fn init_logger() {
+    env::set_var("RUST_LOG", "DEBUG");
+    env_logger::init();
+}
+
+#[cfg(not(debug_assertions))]
+fn init_logger() {
+    if let None = env::var_os("RUST_LOG") {
+        env::set_var("RUST_LOG", "INFO");
+    }
+    
+    env_logger::init();
+}
+
 #[cfg(not(debug_assertions))]
 fn init_daemon() -> Result<(), daemonize_me::DaemonError> {
     let pidFile = "/var/run/img_sync.pid";
@@ -76,7 +91,7 @@ fn init_daemon() -> Result<(), daemonize_me::DaemonError> {
 }
 
 fn main() {
-    env_logger::init();
+    init_logger();
     let config = Config::new();
     // Option handling
     let _arg_len = env::args().len();
