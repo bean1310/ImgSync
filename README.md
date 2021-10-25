@@ -2,7 +2,7 @@
 
 ## What is this?
 
-Auto image uploader wrote in Rust.
+Auto image uploader written in Rust.
 
 ImgSync uploads image files that are newly added in an observed directory to slack automatically.
 
