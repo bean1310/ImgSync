@@ -19,7 +19,7 @@ make
 install (for systemd system)
 
 ```bash
-sudo make install-install
+sudo make systemd-install
 ```
 
 install (to .cargo dir)
