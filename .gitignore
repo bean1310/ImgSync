@@ -1,1 +1,5 @@
-/target
+target
+test
+debug.*
+*.pid
+.vscode
