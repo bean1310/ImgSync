@@ -1,10 +1,11 @@
-use std::path::Path;
+use std::{path::Path};
 use thiserror::Error;
 
 pub mod slack;
 
 pub trait Storage {
     fn upload(&self, path: &Path) -> Result<(), Box<dyn std::error::Error>>;
+    fn storage_name(&self) -> String;
 }
 
 #[derive(Error, Debug)]
