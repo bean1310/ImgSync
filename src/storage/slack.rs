@@ -42,6 +42,10 @@ impl Storage for Slack
 
         Ok(())
     }
+    
+    fn storage_name(&self) -> String {
+        "Slack".to_string()
+    }
 }
 
 impl Slack {

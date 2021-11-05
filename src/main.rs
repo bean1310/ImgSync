@@ -1,6 +1,7 @@
 extern crate notify;
 
 use notify::DebouncedEvent::Create;
+use notify_rust::Notification;
 use std::env;
 use std::path::PathBuf;
 
@@ -153,28 +154,40 @@ fn watch(
                     debug!("detect file create event");
                     let upload_result = storage.upload(&path);
                     match upload_result {
-                        Ok(()) => debug!("[log] Successed to upload file: {}", path.display()),
-                        Err(error) => match error.downcast_ref::<StorageError>() {
-                            Some(e) => match e {
-                                StorageError::ApiError(msg) => {
-                                    warn!(
-                                        "Failed to upload file: {}\n
-                                        Storage API Error messsage is : {}",
-                                        path.display(),
-                                        msg
-                                    );
-                                }
-                                StorageError::HttpError(http_status_code) => {
-                                    warn!(
-                                        "Failed to upload file: {}\n
-                                        Http status code is : {}",
-                                        path.display(),
-                                        http_status_code
-                                    );
-                                }
-                            },
-                            _ => (),
+                        Ok(()) => {
+                            debug!("[log] Successful upload file to {}: {}", storage.storage_name().as_str(), path.display());
+                            Notification::new()
+                            .summary("ImgSync Notification")
+                            .body(format!("Successful upload to {}", storage.storage_name()).as_str())
+                            .show()?;
                         },
+                        Err(error) => {
+                            match error.downcast_ref::<StorageError>() {
+                                Some(e) => match e {
+                                    StorageError::ApiError(msg) => {
+                                        warn!(
+                                            "Failed to upload file: {}\n
+                                            Storage API Error messsage is : {}",
+                                            path.display(),
+                                            msg
+                                        );
+                                    },
+                                    StorageError::HttpError(http_status_code) => {
+                                        warn!(
+                                            "Failed to upload file: {}\n
+                                            Http status code is : {}",
+                                            path.display(),
+                                            http_status_code
+                                        );
+                                    }
+                                },
+                                _ => (),
+                            }
+                            Notification::new()
+                            .summary("ImgSync Notification")
+                            .body(format!("Failed to upload to {}", storage.storage_name()).as_str())
+                            .show()?;
+                        }
                     }
                 }
             }
